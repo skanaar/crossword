@@ -1,6 +1,7 @@
 import { generateSparse } from './crossword.js'
 import { svg } from './render.js'
 import { ordlista } from './svenska.js'
+import { wordlist } from './english.js'
 import { Optimizer } from './optimizer.js'
 
 function progressSvg(size, amount) {
@@ -14,14 +15,12 @@ function progressSvg(size, amount) {
   </svg>`
 }
 
-const sq = x => x*x
-
 export function App({
   generateButton,
-  customWordsCheckbox,
+  wordsSelect,
   customWords,
   sizeSelect,
-  iterationsSlider,
+  iterationsSelect,
   consoleHost,
   displayHost,
 }) {
@@ -34,15 +33,19 @@ export function App({
     var scale = 500/size
   
     var optimize = Optimizer({
-      seconds: sq(iterationsSlider.value) / 10,
+      seconds: +iterationsSelect.value,
       onProgress(progress) {
         displayHost.innerHTML = progressSvg(scale*size, progress)
       }
     })
+    
+    var wordOptions = {
+      custom: customWords.value.trim().split('\n').map(e => e.trim()),
+      swe: ordlista,
+      eng: wordlist,
+    }
 
-    var words = customWordsCheckbox.checked
-    ? customWords.value.trim().split('\n').map(e => e.trim())
-    : ordlista
+    var words = wordOptions[wordsSelect.value]
     var grid = await optimize(() => generateSparse(words, size), )
     consoleHost.innerHTML = 'score: ' + grid.score()
     displayHost.innerHTML = svg(grid.grid, scale)

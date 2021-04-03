@@ -4,39 +4,71 @@
   <meta charset="utf-8">
   <title>crossword</title>
   <style>
-    html, body { margin: 0 }
+    html, body { margin: 0; background: #eee; }
     body { font-family: sans-serif; }
-    button { font-family: inherit; font-size: inherit; }
     crossword-settings {
       display: inline-block;
       width: 200px;
-      height: 300px;
       vertical-align: top;
-      margin: 10px;
+      margin: 20px;
     }
-    crossword-settings label { display: block }
-    textarea { height: 300px; margin-bottom: 10px; }
-    #root { display: inline-block; }
+    select, button, textarea, output-console {
+      display: inline-block;
+    }
+    .card {
+      background: white;
+      border-radius: 5px;
+      box-shadow: 0 5px 20px rgb(0 0 0 / 10%);
+      font-family: "Geneva", "Calibri", sans-serif;
+      font-weight: bold;
+      font-size: 14px;
+      color: #666;
+      padding: 6px 8px;
+      box-sizing: border-box;
+      border: none;
+    }
+    .box {
+      border-radius: 5px;
+      font-family: "Geneva", "Calibri", sans-serif;
+      font-weight: bold;
+      font-size: 14px;
+      color: #666;
+      box-sizing: border-box;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      padding: 5px 7px;
+    }
+    select, button, output-console { width: 100%; margin: 10px 0; }
+    textarea { height: 100px; width: 100%; margin-bottom: 10px; }
+    #root { display: inline-block; margin: 20px; padding: 20px }
   </style>
 </head>
 <body>
   <crossword-settings>
-    <textarea id=words></textarea>
-    <label><input type=checkbox id=custom-word-list>Custom words</label>
-    <label>Size</label>
-    <select id=size-select value=10>
-      <option value=7>7×7</option>
-      <option value=10>10×10</option>
-      <option value=15>15×15</option>
-      <option value=25>25×25</option>
-      <option value=50>50×50</option>
+    <textarea id=words class=card></textarea>
+    <select id=words-select class=card>
+      <option value=swe selected>Swedish word list</option>
+      <option value=eng>English word list</option>
+      <option value=custom>Custom word list</option>
     </select>
-    <label>Iterations</label>
-    <input id=iterations-slider type=range min=0 max=10 value=0>
-    <button id=generate-button>Generate</button>
-    <pre id=console></pre>
+    <select id=size-select class=card>
+      <option value=7>7×7 grid</option>
+      <option value=10 selected>10×10 grid</option>
+      <option value=15>15×15 grid</option>
+      <option value=25>25×25 grid</option>
+      <option value=50>50×50 grid</option>
+    </select>
+    <select id=iterations-select class=card>
+      <option value=0>Quick and dirty</option>
+      <option value=0.2 selected>200 ms processing</option>
+      <option value=1>1 s processing</option>
+      <option value=2>2 s processing</option>
+      <option value=5>5 s processing</option>
+    </select>
+    <button id=generate-button class=card>Generate</button>
+    <output-console id=console class=box></output-console>
   </crossword-settings>
-	<div id=root></div>
+	<div id=root class=card></div>
 	
 	<script type=module src=crossword.js></script>
   <script type="module">
@@ -44,10 +76,10 @@
     
     App({
       generateButton: document.querySelector('#generate-button'),
-      customWordsCheckbox: document.querySelector('#custom-word-list'),
+      wordsSelect: document.querySelector('#words-select'),
       customWords: document.querySelector('#words'),
       sizeSelect: document.querySelector('#size-select'),
-      iterationsSlider: document.querySelector('#iterations-slider'),
+      iterationsSelect: document.querySelector('#iterations-select'),
       consoleHost: document.querySelector('#console'),
       displayHost: document.querySelector('#root'),
     })
