@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>crossword</title>
+  <style>
+    html, body { margin: 0 }
+    body { font-family: sans-serif; }
+    button { font-family: inherit; font-size: inherit; }
+    crossword-settings {
+      display: inline-block;
+      width: 200px;
+      height: 300px;
+      vertical-align: top;
+      margin: 10px;
+    }
+    crossword-settings label { display: block }
+    textarea { height: 300px; margin-bottom: 10px; }
+    #root { display: inline-block; }
+  </style>
+</head>
+<body>
+  <crossword-settings>
+    <textarea id=words></textarea>
+    <label><input type=checkbox id=custom-word-list>Custom words</label>
+    <label>Size</label>
+    <select id=size-select value=10>
+      <option value=7>7×7</option>
+      <option value=10>10×10</option>
+      <option value=15>15×15</option>
+      <option value=25>25×25</option>
+      <option value=50>50×50</option>
+    </select>
+    <label>Iterations</label>
+    <input id=iterations-slider type=range min=0 max=10 value=0>
+    <button id=generate-button>Generate</button>
+    <pre id=console></pre>
+  </crossword-settings>
+	<div id=root></div>
+	
+	<script type=module src=crossword.js></script>
+  <script type="module">
+    import { App } from './app.js'
+    
+    App({
+      generateButton: document.querySelector('#generate-button'),
+      customWordsCheckbox: document.querySelector('#custom-word-list'),
+      customWords: document.querySelector('#words'),
+      sizeSelect: document.querySelector('#size-select'),
+      iterationsSlider: document.querySelector('#iterations-slider'),
+      consoleHost: document.querySelector('#console'),
+      displayHost: document.querySelector('#root'),
+    })
+  </script>
+
+</body>
+</html>
