@@ -7,6 +7,7 @@ export function isClue(c) { return 'number' === typeof c }
 export function isBlock(c) { return 'object' === typeof c }  
 export function isLetter(c) { return 'string' === typeof c }
 export function isFree(c) { return isEmpty(c) || isBlock(c) }  
+export function Reserved() { return false }
 export function Clue(number) { return number }
 export function Letter(letter) { return letter }
 export function Block() { return {} }
@@ -16,6 +17,12 @@ export class WordGrid {
     this.size = size
     this.grid = range(0, size).map(() => range(0, size).map(e => null))
     this.words = []
+  }
+
+  reserve(x, y, w, h) {
+    for (var i=x; i<x+w; i++)
+      for (var j=y; j<y+h; j++)
+        this.grid[j][i] = Reserved()
   }
 
   find_v(word, modulo = 1, offset = 0) {

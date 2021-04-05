@@ -1,10 +1,9 @@
 import { shuffle } from './util.js'
-import { WordGrid, Vec } from './wordgrid.js'
+import { Vec } from './wordgrid.js'
 
-export function generateSparse(words, size) {
-  var grid = new WordGrid(size)
-  
+export function generateSparse(words, grid) {  
   var list = shuffle(words).sort((a,b) => a.length < b.length)
+  var size = grid.size
   
   var first = true
   var vertical = true

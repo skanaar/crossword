@@ -59,6 +59,13 @@
       <option value=25>25×25 grid</option>
       <option value=50>50×50 grid</option>
     </select>
+    <select id=inset-select class=card>
+      <option value=0x0 selected>no inset</option>
+      <option value=0.25x0.25>small square inset</option>
+      <option value=0.5x0.25>small wide inset</option>
+      <option value=0.25x0.5>small tall inset</option>
+      <option value=0.5x0.5>large square inset</option>
+    </select>
     <select id=iterations-select class=card>
       <option value=0>Quick and dirty</option>
       <option value=0.2 selected>200 ms processing</option>
@@ -79,6 +86,7 @@
       wordsSelect: document.querySelector('#words-select'),
       customWords: document.querySelector('#words'),
       sizeSelect: document.querySelector('#size-select'),
+      insetSelect: document.querySelector('#inset-select'),
       iterationsSelect: document.querySelector('#iterations-select'),
       consoleHost: document.querySelector('#console'),
       displayHost: document.querySelector('#root'),

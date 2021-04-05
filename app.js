@@ -3,6 +3,7 @@ import { svg } from './render.js'
 import { ordlista } from './svenska.js'
 import { wordlist } from './english.js'
 import { Optimizer } from './optimizer.js'
+import { WordGrid } from './wordgrid.js'
 
 function progressSvg(size, amount) {
   return `<svg width="${size}" height="${size}">
@@ -20,6 +21,7 @@ export function App({
   wordsSelect,
   customWords,
   sizeSelect,
+  insetSelect,
   iterationsSelect,
   consoleHost,
   displayHost,
@@ -29,6 +31,7 @@ export function App({
   async function generate() {
     
     var size = +sizeSelect.value
+    var inset = insetSelect.value.split('x').map(e => +e)
     var scale = 500/size
   
     var optimize = Optimizer({
@@ -45,7 +48,11 @@ export function App({
     }
 
     var words = wordOptions[wordsSelect.value]
-    var grid = await optimize(() => generateSparse(words, size), )
+    var grid = await optimize(() => {
+      var inputGrid = new WordGrid(size)
+      inputGrid.reserve(0, 0, size*inset[0], size*inset[1])
+      return generateSparse(words, inputGrid)
+    })
     console.log(grid.words)
     consoleHost.innerHTML = 'score: ' + grid.score()
     displayHost.innerHTML = svg(grid.grid, scale)
