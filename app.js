@@ -25,6 +25,7 @@ export function App({
   iterationsSelect,
   consoleHost,
   displayHost,
+  usedWords,
 }) {
   generateButton.addEventListener('click', generate)
 
@@ -49,12 +50,14 @@ export function App({
 
     var words = wordOptions[wordsSelect.value]
     var grid = await optimize(() => {
-      var inputGrid = new WordGrid(size)
-      inputGrid.reserve(0, 0, size*inset[0], size*inset[1])
-      return generateSparse(words, inputGrid)
+      return generateSparse(words, new WordGrid({
+        size,
+        reserved: [{ x: 0, y: 0, width: Math.floor(size*inset[0]), height: Math.floor(size*inset[1]) }]
+      }))
     })
-    console.log(grid.words)
+    console.log(grid)
     consoleHost.innerHTML = 'score: ' + grid.score()
-    displayHost.innerHTML = svg(grid.grid, scale)
+    displayHost.innerHTML = svg(grid, scale)
+    usedWords.value = grid.words.join('\n')
   }
 }

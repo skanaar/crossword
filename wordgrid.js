@@ -2,27 +2,27 @@ import { range } from './util.js'
 
 export function Vec(x,y) { return {x,y} }
 
-export function isEmpty(c) { return c === null }  
-export function isClue(c) { return 'number' === typeof c }  
-export function isBlock(c) { return 'object' === typeof c }  
+export function isEmpty(c) { return c === null }
+export function isClue(c) { return 'number' === typeof c }
+export function isStop(c) { return 'object' === typeof c }
 export function isLetter(c) { return 'string' === typeof c }
-export function isFree(c) { return isEmpty(c) || isBlock(c) }  
+export function isFree(c) { return isEmpty(c) || isStop(c) }
 export function Reserved() { return false }
 export function Clue(number) { return number }
 export function Letter(letter) { return letter }
-export function Block() { return {} }
+export function Stop() { return {} }
 
 export class WordGrid {
-  constructor(size) {
+  constructor({ size, reserved = [] }) {
     this.size = size
     this.grid = range(0, size).map(() => range(0, size).map(e => null))
     this.words = []
-  }
-
-  reserve(x, y, w, h) {
-    for (var i=x; i<x+w; i++)
-      for (var j=y; j<y+h; j++)
-        this.grid[j][i] = Reserved()
+    this.reserved = reserved
+    for(var { x, y, width, height } of reserved) {
+      for (var i=x; i<x+width; i++)
+        for (var j=y; j<y+height; j++)
+          this.grid[j][i] = Reserved()
+    }
   }
 
   find_v(word, modulo = 1, offset = 0) {
@@ -41,11 +41,11 @@ export class WordGrid {
           if (this.try_h(word, Vec(i,j))) return Vec(i,j)
     return false
   }
-  
+
   get(p) {
     return this.grid[p.y][p.x]
   }
-  
+
   offset(p, direction, offset) {
     return direction === 'v' ?
       Vec(p.x, p.y+offset) :
@@ -79,7 +79,7 @@ export class WordGrid {
     this.grid[p.y][p.x] = Clue(number)
     for (var k=0; k<word.length; k++) this.grid[p.y][p.x+k+1] = Letter(word[k])
     if (!isClue(this.grid[p.y][p.x+word.length+1]))
-      this.grid[p.y][p.x+word.length+1] = Block()
+      this.grid[p.y][p.x+word.length+1] = Stop()
   }
 
   place_v(word, number, p) {
@@ -87,7 +87,7 @@ export class WordGrid {
     this.grid[p.y][p.x] = Clue(number)
     for (var k=0; k<word.length; k++) this.grid[p.y+k+1][p.x] = Letter(word[k])
     if (!isClue(this.grid[p.y+word.length+1][p.x]))
-      this.grid[p.y+word.length+1][p.x] = Block()
+      this.grid[p.y+word.length+1][p.x] = Stop()
   }
 
   score() {

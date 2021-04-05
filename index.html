@@ -7,7 +7,7 @@
   <style>
     html, body { margin: 0; background: #eee; }
     body { font-family: sans-serif; }
-    crossword-settings {
+    crossword-settings, clues-panel {
       display: inline-block;
       width: 200px;
       vertical-align: top;
@@ -61,9 +61,9 @@
     </select>
     <select id=inset-select class=card>
       <option value=0x0 selected>no inset</option>
-      <option value=0.25x0.25>small square inset</option>
-      <option value=0.5x0.25>small wide inset</option>
-      <option value=0.25x0.5>small tall inset</option>
+      <option value=0.35x0.35>small square inset</option>
+      <option value=0.5x0.35>small wide inset</option>
+      <option value=0.35x0.5>small tall inset</option>
       <option value=0.5x0.5>large square inset</option>
     </select>
     <select id=iterations-select class=card>
@@ -77,6 +77,9 @@
     <output-console id=console class=box></output-console>
   </crossword-settings>
 	<div id=root class=card></div>
+  <clues-panel>
+    <textarea id=used-words class=card></textarea>
+  </clues-panel>
 	
   <script type="module">
     import { App } from './app.js'
@@ -90,6 +93,7 @@
       iterationsSelect: document.querySelector('#iterations-select'),
       consoleHost: document.querySelector('#console'),
       displayHost: document.querySelector('#root'),
+      usedWords: document.querySelector('#used-words'),
     })
   </script>
 

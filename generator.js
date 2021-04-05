@@ -9,7 +9,7 @@ export function generateSparse(words, grid) {
   var vertical = true
   var number = 1
   for(var word of list){
-    if (word.length > size) continue
+    if (word.length+1 > size) continue
     if (first) {
       grid.place_h(word, number++, Vec(Math.floor((size-word.length)/2), Math.floor(size/2)))
       first = false
