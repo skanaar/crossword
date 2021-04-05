@@ -1,4 +1,4 @@
-import { generateSparse } from './crossword.js'
+import { generateSparse } from './generator.js'
 import { svg } from './render.js'
 import { ordlista } from './svenska.js'
 import { wordlist } from './english.js'
@@ -29,7 +29,6 @@ export function App({
   async function generate() {
     
     var size = +sizeSelect.value
-    console.log({size})
     var scale = 500/size
   
     var optimize = Optimizer({
@@ -47,6 +46,7 @@ export function App({
 
     var words = wordOptions[wordsSelect.value]
     var grid = await optimize(() => generateSparse(words, size), )
+    console.log(grid.words)
     consoleHost.innerHTML = 'score: ' + grid.score()
     displayHost.innerHTML = svg(grid.grid, scale)
   }

@@ -8,18 +8,18 @@ export function generateSparse(words, size) {
   
   var first = true
   var vertical = true
+  var number = 1
   for(var word of list){
-    word = ` ${word} `
     if (word.length > size) continue
     if (first) {
-      grid.place_h(word, Vec(Math.floor((size-word.length)/2), Math.floor(size/2)))
+      grid.place_h(word, number++, Vec(Math.floor((size-word.length)/2), Math.floor(size/2)))
       first = false
     } else if (vertical){
       let p = grid.find_v(word, 2, 1)
-      if (p) grid.place_v(word, p)
+      if (p) grid.place_v(word, number++, p)
     } else {
       let p = grid.find_h(word, 2, 1)
-      if (p) grid.place_h(word, p)
+      if (p) grid.place_h(word, number++, p)
     }
     vertical = !vertical
   }
