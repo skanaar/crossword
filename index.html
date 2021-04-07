@@ -75,6 +75,7 @@
       <option value=5>5 s processing</option>
     </select>
     <button id=generate-button class=card>Generate</button>
+    <button id=pop-button class=card>Pop</button>
     <output-console id=console class=box></output-console>
   </crossword-settings>
 	<div id=root class=card></div>
@@ -87,6 +88,7 @@
     
     App({
       generateButton: document.querySelector('#generate-button'),
+      popButton: document.querySelector('#pop-button'),
       wordsSelect: document.querySelector('#words-select'),
       customWords: document.querySelector('#words'),
       sizeSelect: document.querySelector('#size-select'),

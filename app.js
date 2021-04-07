@@ -18,6 +18,7 @@ function progressSvg(size, amount) {
 
 export function App({
   generateButton,
+  popButton,
   wordsSelect,
   customWords,
   sizeSelect,
@@ -28,17 +29,33 @@ export function App({
   usedWords,
 }) {
   generateButton.addEventListener('click', generate)
+  popButton.addEventListener('click', pop)
+  
+  var lastGrid = null
+  
+  function pop() {
+    lastGrid.pop()
+    render(lastGrid)
+  }
+  
+  function render(grid) {
+    var size = +sizeSelect.value
+    var scale = 500/size
+    console.log(grid)
+    consoleHost.innerHTML = 'score: ' + grid.score()
+    displayHost.innerHTML = svg(grid, scale)
+    usedWords.value = grid.words.join('\n')
+  }
 
   async function generate() {
     
     var size = +sizeSelect.value
     var inset = insetSelect.value.split('x').map(e => +e)
-    var scale = 500/size
   
     var optimize = Optimizer({
       seconds: +iterationsSelect.value,
       onProgress(progress) {
-        displayHost.innerHTML = progressSvg(scale*size, progress)
+        displayHost.innerHTML = progressSvg(500, progress)
       }
     })
     
@@ -55,9 +72,7 @@ export function App({
         reserved: [{ x: 0, y: 0, width: Math.floor(size*inset[0]), height: Math.floor(size*inset[1]) }]
       }))
     })
-    console.log(grid)
-    consoleHost.innerHTML = 'score: ' + grid.score()
-    displayHost.innerHTML = svg(grid, scale)
-    usedWords.value = grid.words.join('\n')
+    lastGrid = grid
+    render(grid)
   }
 }

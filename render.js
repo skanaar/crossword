@@ -7,6 +7,7 @@ export function print(grid) {
 export function svg(wordgrid, scale = 20) {
   var grid = wordgrid.grid
   var padding = scale/5
+
   function renderCell(cell, i, j) {
     if (!cell) return ''
     var x = scale*i
@@ -19,13 +20,15 @@ export function svg(wordgrid, scale = 20) {
       return `<rect x="${x}" y="${y}" width="${scale}" height="${scale}" class="solid"/>`
     return `
       <rect x="${x}" y="${y}" width="${scale}" height="${scale}" />
-      <text x="${x+scale/2}" y="${y+scale-padding}">${cell.toUpperCase()}</text>`
+      <text x="${x+scale/2}" y="${y+scale-padding}">${cell.toString().toUpperCase()}</text>`
   }
+
   function renderArea(area) {
     var x = scale*area.x
     var y = scale*area.y
     return `<rect x="${x}" y="${y}" width="${area.width*scale}" height="${area.height*scale}" />`
   }
+
   var elements = grid.flatMap((row, j) =>
     row.map((cell, i) => renderCell(cell, i, j))
   )
