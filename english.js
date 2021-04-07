@@ -1,5 +1,4 @@
 export const wordlist = [
-"a",
 "ability",
 "able",
 "about",
@@ -392,7 +391,6 @@ export const wordlist = [
 "human",
 "hundred",
 "husband",
-"I",
 "idea",
 "identify",
 "image",
