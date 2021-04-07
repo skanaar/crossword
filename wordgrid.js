@@ -2,6 +2,9 @@ import { range } from './util.js'
 
 export function Vec(x,y) { return {x,y} }
 
+export const Vertical = (p, offset) => Vec(p.x, p.y+offset)
+export const Horizontal = (p, offset) => Vec(p.x+offset, p.y)
+
 export function isEmpty(c) { return c === null }
 export function isClue(c) { return 'number' === typeof c }
 export function isStop(c) { return 'object' === typeof c }
@@ -25,11 +28,19 @@ export class WordGrid {
     }
   }
 
+  get(p) {
+    return this.grid[p.y][p.x]
+  }
+  
+  set(p, value) {
+    this.grid[p.y][p.x] = value
+  }
+
   find_v(word, modulo = 1, offset = 0) {
     for (var i=offset; i<this.size; i+=modulo)
       for (var j=0; j<this.size-word.length; j++)
         if ([].some.call(word, (_,l) => isLetter(this.grid[j+l+1][i])))
-          if (this.try_v(word, Vec(i,j)))
+          if (this.try(Vertical, word, Vec(i,j)))
             return Vec(i,j)
     return false
   }
@@ -38,56 +49,31 @@ export class WordGrid {
     for (var i=0; i<this.size-word.length; i++)
       for (var j=offset; j<this.size; j+=modulo)
         if ([].some.call(word, (_,l) => isLetter(this.grid[j][i+l+1])))
-          if (this.try_h(word, Vec(i,j))) return Vec(i,j)
+          if (this.try(Horizontal, word, Vec(i,j))) return Vec(i,j)
     return false
   }
 
-  get(p) {
-    return this.grid[p.y][p.x]
-  }
-
-  offset(p, direction, offset) {
-    return direction === 'v' ?
-      Vec(p.x, p.y+offset) :
-      Vec(p.x+offset, p.y)
-  }
-
-  try_v(word, p) {
-    if (!isFree(this.grid[p.y][p.x])) return false
-    if (p.y + word.length + 2 >= this.size) return false
-    if (isLetter(this.grid[p.y+word.length+1][p.x])) return false
+  try(offset, word, p) {
+    if (!isFree(this.get(p))) return false
+    var end = offset(p, word.length+2)
+    if (end.x >= this.size || end.y >= this.size) return false
+    var last = offset(p, word.length+1)
+    if (isLetter(this.get(last))) return false
     for (var k=0; k<word.length; k++) {
-      var cell = this.grid[p.y+k+1][p.x]
+      var cell = this.get(offset(p, k+1))
       if (cell !== null && cell !== word[k]) return false
     }
     return true
   }
 
-  try_h(word, p) {
-    if (!isFree(this.grid[p.y][p.x])) return false
-    if (p.x + word.length + 2 >= this.size) return false
-    if (isLetter(this.grid[p.y][p.x+word.length+1])) return false
-    for (var k=0; k<word.length; k++) {
-      var cell = this.grid[p.y][p.x+k+1]
-      if (cell !== null && cell !== word[k]) return false
-    }
-    return true
-  }
-
-  place_h(word, number, p) {
+  place(offset, word, number, p) {
     this.words.push(word)
-    this.grid[p.y][p.x] = Clue(number)
-    for (var k=0; k<word.length; k++) this.grid[p.y][p.x+k+1] = Letter(word[k])
-    if (!isClue(this.grid[p.y][p.x+word.length+1]))
-      this.grid[p.y][p.x+word.length+1] = Stop()
-  }
-
-  place_v(word, number, p) {
-    this.words.push(word)
-    this.grid[p.y][p.x] = Clue(number)
-    for (var k=0; k<word.length; k++) this.grid[p.y+k+1][p.x] = Letter(word[k])
-    if (!isClue(this.grid[p.y+word.length+1][p.x]))
-      this.grid[p.y+word.length+1][p.x] = Stop()
+    this.set(p, Clue(number))
+    for (var k=0; k<word.length; k++)
+      this.set(offset(p, k+1), Letter(word[k]))
+    var end = offset(p, word.length+1)
+    if (!isClue(this.get(end)))
+      this.set(end, Stop())
   }
 
   score() {
