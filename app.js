@@ -1,4 +1,4 @@
-import { generateSparse } from './generator.js'
+import { generateSparse, randomizeWords } from './generator.js'
 import { svg } from './render.js'
 import { ordlista } from './svenska.js'
 import { wordlist } from './english.js'
@@ -32,6 +32,7 @@ export function App({
   popButton.addEventListener('click', pop)
   
   var lastGrid = null
+  var isGenerating = false
   
   function pop() {
     lastGrid.pop()
@@ -44,11 +45,12 @@ export function App({
     console.log(grid)
     consoleHost.innerHTML = 'score: ' + grid.score()
     displayHost.innerHTML = svg(grid, scale)
-    usedWords.value = grid.words.join('\n')
+    usedWords.value = grid.words.map(e => e.word).join('\n')
   }
 
   async function generate() {
-    
+    if (isGenerating) return
+    isGenerating = true
     var size = +sizeSelect.value
     var inset = insetSelect.value.split('x').map(e => +e)
   
@@ -59,20 +61,27 @@ export function App({
       }
     })
     
+    var mandatory = customWords.value.trim().split('\n').map(e => e.trim())
     var wordOptions = {
-      custom: customWords.value.trim().split('\n').map(e => e.trim()),
       swe: ordlista,
       eng: wordlist,
     }
 
     var words = wordOptions[wordsSelect.value]
     var grid = await optimize(() => {
-      return generateSparse(words, new WordGrid({
+      var wordlist = randomizeWords({ mandatory, fillers: words })
+      return generateSparse(wordlist, new WordGrid({
         size,
-        reserved: [{ x: 0, y: 0, width: Math.floor(size*inset[0]), height: Math.floor(size*inset[1]) }]
+        reserved: [{
+          x: 0,
+          y: 0,
+          width: Math.floor(size*inset[0]),
+          height: Math.floor(size*inset[1])
+        }]
       }))
     })
     lastGrid = grid
     render(grid)
+    isGenerating = false
   }
 }

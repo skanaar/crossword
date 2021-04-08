@@ -17,12 +17,21 @@
     select, button, textarea, output-console {
       display: inline-block;
     }
+    select.card {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background: white;
+      background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 8l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position-x: 100%;
+      background-position-y: 5px;
+    }
     .card {
       background: white;
       border-radius: 5px;
       box-shadow: 0 5px 20px rgb(0 0 0 / 10%);
       font-family: "Geneva", "Calibri", sans-serif;
-      font-weight: bold;
+      font-weight: normal;
       font-size: 14px;
       color: #666;
       padding: 6px 8px;
@@ -32,7 +41,7 @@
     .box {
       border-radius: 5px;
       font-family: "Geneva", "Calibri", sans-serif;
-      font-weight: bold;
+      font-weight: normal;
       font-size: 14px;
       color: #666;
       box-sizing: border-box;
@@ -43,6 +52,10 @@
     select, button, output-console { width: 100%; margin: 10px 0; }
     textarea { height: 100px; width: 100%; margin-bottom: 10px; }
     #root { display: inline-block; margin: 20px; padding: 20px }
+    #root svg { width: 100% }
+    @media (min-width: 500px) {
+      #root svg { width: 500px }
+    }
   </style>
 </head>
 <body>
@@ -51,7 +64,6 @@
     <select id=words-select class=card>
       <option value=swe selected>Swedish word list</option>
       <option value=eng>English word list</option>
-      <option value=custom>Custom word list</option>
     </select>
     <select id=size-select class=card>
       <option value=7>7×7 grid</option>

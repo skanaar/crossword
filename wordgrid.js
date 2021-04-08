@@ -1,5 +1,7 @@
 /* jshint undef: true */
-import { range } from './util.js'
+function range(from, to) {
+  return ' '.repeat(to-from).split('').map((e,i) => i)
+}
 
 export function Vec(x,y) { return {x,y} }
 
@@ -130,7 +132,7 @@ export class WordGrid {
 
     var end = offset(loc, word.length+1)
     if (isStop(this.get(end))){
-      if (this.get(end).intersection) this.setIntersection(false)
+      if (this.get(end).intersection) this.setIntersection(end, false)
       else this.set(end, Empty())
     }
     if (isClue(this.get(end))){

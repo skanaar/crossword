@@ -32,7 +32,7 @@ export function svg(wordgrid, scale = 20) {
   var elements = grid.flatMap((row, j) =>
     row.map((cell, i) => renderCell(cell, i, j))
   )
-  return `<svg width="${grid.length*scale}" height="${grid[0].length*scale}">
+  return `<svg viewBox="0 0 ${grid.length*scale} ${grid[0].length*scale}">
   <style>
     rect { fill:none; stroke:#000; stroke-width: 2px; }
     .solid {fill:#000}
