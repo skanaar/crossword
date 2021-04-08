@@ -18,7 +18,7 @@ function progressSvg(size, amount) {
 
 export function App({
   generateButton,
-  popButton,
+  removeLastWordButton,
   wordsSelect,
   customWords,
   sizeSelect,
@@ -28,14 +28,35 @@ export function App({
   displayHost,
   usedWords,
 }) {
-  generateButton.addEventListener('click', generate)
-  popButton.addEventListener('click', pop)
+  
+  var blockableGenerate = blocking(generate, () => {
+    generateButton.disabled = blockableGenerate.isBlocked
+  })
+  
+  generateButton.addEventListener('click', blockableGenerate)
+  removeLastWordButton.addEventListener('click', removeLastWord)
   
   var lastGrid = null
-  var isGenerating = false
   
-  function pop() {
-    lastGrid.pop()
+  function blocking(action, onChange = () => {}) {
+    var blockable = async function () {
+      if (blockable.isBlocked) return
+      blockable.isBlocked = true
+      try {
+        onChange()
+        await action()
+      }
+      finally {
+        blockable.isBlocked = false
+        onChange()
+      }
+    }
+    blockable.isBlocked = false
+    return blockable
+  }
+  
+  function removeLastWord() {
+    lastGrid.removeLastWord()
     render(lastGrid)
   }
   
@@ -49,8 +70,6 @@ export function App({
   }
 
   async function generate() {
-    if (isGenerating) return
-    isGenerating = true
     var size = +sizeSelect.value
     var inset = insetSelect.value.split('x').map(e => +e)
   
@@ -82,6 +101,5 @@ export function App({
     })
     lastGrid = grid
     render(grid)
-    isGenerating = false
   }
 }

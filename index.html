@@ -13,6 +13,7 @@
       width: 200px;
       vertical-align: top;
       margin: 20px;
+      user-select: none;
     }
     select, button, textarea, output-console {
       display: inline-block;
@@ -50,6 +51,7 @@
       padding: 5px 7px;
     }
     select, button, output-console { width: 100%; margin: 10px 0; }
+    button[disabled] { background: linear-gradient(45deg, #ccc 0 10%, #eee 10% 20%, #ccc 20% 30%, #eee 30% 40%, #ccc 40% 50%, #eee 50% 60%, #ccc 60% 70%, #eee 70% 80%, #ccc 80% 90%, #eee 90% 100%) }
     textarea { height: 100px; width: 100%; margin-bottom: 10px; }
     #root { display: inline-block; margin: 20px; padding: 20px }
     #root svg { width: 100% }
@@ -87,7 +89,7 @@
       <option value=5>5 s processing</option>
     </select>
     <button id=generate-button class=card>Generate</button>
-    <button id=pop-button class=card>Pop</button>
+    <button id=remove-button class=card>Remove last word</button>
     <output-console id=console class=box></output-console>
   </crossword-settings>
 	<div id=root class=card></div>
@@ -100,7 +102,7 @@
     
     App({
       generateButton: document.querySelector('#generate-button'),
-      popButton: document.querySelector('#pop-button'),
+      removeLastWordButton: document.querySelector('#remove-button'),
       wordsSelect: document.querySelector('#words-select'),
       customWords: document.querySelector('#words'),
       sizeSelect: document.querySelector('#size-select'),

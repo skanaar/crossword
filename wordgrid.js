@@ -19,8 +19,12 @@ export function isMatch(c, letter) { return c.letter === letter }
 export function isFree(c) { return isEmpty(c) || isStop(c) }
 export function Empty() { return null }
 export function Reserved() { return false }
-export function Clue(number) {
-  return { clue: number, intersection: false, toString() { return this.clue.toString() } }
+export function Clue(number, direction) {
+  return {
+    clue: number,
+    intersection: false,
+    direction,
+    toString() { return this.clue.toString() } }
 }
 export function Stop() { return { isStop: true, intersection: false } }
 export function Letter(letter) {
@@ -93,10 +97,10 @@ export class WordGrid {
   place(offset, word, number, p) {
     this.words.push({ word, loc: p, direction: offset.id })
     if (isStop(this.get(p))){
-      this.set(p, Clue(number))
+      this.set(p, Clue(number, offset.id))
       this.setIntersection(p, true)
     } else
-      this.set(p, Clue(number))
+      this.set(p, Clue(number, offset.id))
 
     for (var k=0; k<word.length; k++) {
       var loc = offset(p, k+1)
@@ -113,7 +117,7 @@ export class WordGrid {
       this.set(end, Stop())
   }
 
-  pop() {
+  removeLastWord() {
     var { word, direction, loc } = this.words.pop()
     var offset = offsets[direction]
 

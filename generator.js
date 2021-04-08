@@ -18,13 +18,12 @@ export function randomizeWords({ mandatory, fillers }) {
 export function generateSparse(words, grid) {
   var size = grid.size
   var number = 1
-  var [first, ...tail] = words
+  var [first, ...tail] = words.filter(e => e.length + 2 <= size)
 
   grid.place(Horizontal, first, number++, Vec(Math.floor((size-first.length)/2), Math.floor(size/2)))
   
   var isVertical = true
   for(var word of tail){
-    if (word.length+1 > size) continue
     if (isVertical){
       let p = grid.find_v(word, 2, 1)
       if (p) {
