@@ -1,6 +1,6 @@
-/* jshint undef: true */
-function range(from, to) {
-  return ' '.repeat(to-from).split('').map((e,i) => i)
+/* jshint -W083, undef: true */
+function seq(size, factory) {
+  return Array(size).fill(0).map(factory)
 }
 
 export function Vec(x,y) { return {x,y} }
@@ -12,24 +12,20 @@ Horizontal.id = 'horizontal'
 const offsets = { vertical: Vertical, horizontal: Horizontal }
 
 export function isEmpty(c) { return c === null }
-export function isClue(c) { return c && c.clue }
-export function isStop(c) { return c && c.isStop }
-export function isLetter(c) { return c && c.isLetter }
+export function isBlock(c) { return c && !!c.clues }
+export function isLetter(c) { return c && ('string' == typeof c.letter) }
 export function isMatch(c, letter) { return c.letter === letter }
-export function isFree(c) { return isEmpty(c) || isStop(c) }
+
 export function Empty() { return null }
 export function Reserved() { return false }
-export function Clue(number, direction) {
+export function Block() {
   return {
-    clue: number,
-    intersection: false,
-    direction,
-    toString() { return this.clue.toString() } }
+    clues: { horizontal: null, vertical: null },
+    uses: 0,
+  }
 }
-export function Stop() { return { isStop: true, intersection: false } }
 export function Letter(letter) {
   return {
-    isLetter: true,
     letter,
     intersection: false,
     toString() { return this.letter }
@@ -39,7 +35,7 @@ export function Letter(letter) {
 export class WordGrid {
   constructor({ size, reserved = [] }) {
     this.size = size
-    this.grid = range(0, size).map(() => range(0, size).map(e => Empty()))
+    this.grid = seq(size, () => seq(size, () => Empty()))
     this.words = []
     this.reserved = reserved
     for(var { x, y, width, height } of reserved) {
@@ -78,14 +74,16 @@ export class WordGrid {
     return false
   }
 
-  try(offset, word, p) {
-    if (!isFree(this.get(p))) return false
-    var end = offset(p, word.length+2)
-    if (end.x >= this.size || end.y >= this.size) return false
-    var last = offset(p, word.length+1)
+  try(direction, word, p) {
+    var start = this.get(p)
+    if (!(isEmpty(start) || isBlock(start))) return false
+    var end = direction(p, word.length+1)
+    if (end.y >= this.size) return false
+    if (end.x >= this.size) return false
+    var last = direction(p, word.length+1)
     if (isLetter(this.get(last))) return false
     for (var k=0; k<word.length; k++) {
-      var cell = this.get(offset(p, k+1))
+      var cell = this.get(direction(p, k+1))
       if (isEmpty(cell) || (isLetter(cell) && isMatch(cell, word[k])))
         continue
       else
@@ -94,37 +92,37 @@ export class WordGrid {
     return true
   }
 
-  place(offset, word, number, p) {
-    this.words.push({ word, loc: p, direction: offset.id })
-    if (isStop(this.get(p))){
-      this.set(p, Clue(number, offset.id))
-      this.setIntersection(p, true)
-    } else
-      this.set(p, Clue(number, offset.id))
+  place(direction, word, number, p) {
+    this.words.push({ word, loc: p, direction: direction.id })
+    if (isEmpty(this.get(p))){
+      this.set(p, Block())
+    }
+    this.get(p).clues[direction.id] = number
+    this.get(p).uses++
 
     for (var k=0; k<word.length; k++) {
-      var loc = offset(p, k+1)
+      var loc = direction(p, k+1)
       if (isLetter(this.get(loc)))
         this.setIntersection(loc, true)
       else
         this.set(loc, Letter(word[k]))
     }
 
-    var end = offset(p, word.length+1)
-    if (isClue(this.get(end)) || isStop(this.get(end)))
-      this.setIntersection(end, true)
-    else
-      this.set(end, Stop())
+    var end = direction(p, word.length+1)
+    if (isEmpty(this.get(end))) {
+      this.set(end, Block())
+    }
+    this.get(end).uses++
   }
 
   removeLastWord() {
     var { word, direction, loc } = this.words.pop()
     var offset = offsets[direction]
 
-    if (this.get(loc).intersection)
-      this.set(loc, Stop())
-    else
-      this.set(loc, Empty())
+    var start = this.get(loc)
+    start.clues[direction] = null
+    start.uses--
+    if (start.uses == 0) this.set(loc, Empty())
 
     for (var k=0; k<word.length; k++) {
       var p = offset(loc, k+1)
@@ -134,14 +132,10 @@ export class WordGrid {
         this.set(p, Empty())
     }
 
-    var end = offset(loc, word.length+1)
-    if (isStop(this.get(end))){
-      if (this.get(end).intersection) this.setIntersection(end, false)
-      else this.set(end, Empty())
-    }
-    if (isClue(this.get(end))){
-      this.setIntersection(end, false)
-    }
+    var endLoc = offset(loc, word.length+1)
+    var end = this.get(endLoc)
+    end.uses--
+    if (end.uses == 0) this.set(endLoc, Empty())
   }
 
   score() {

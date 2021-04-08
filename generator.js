@@ -20,7 +20,7 @@ export function generateSparse(words, grid) {
   var number = 1
   var [first, ...tail] = words.filter(e => e.length + 2 <= size)
 
-  grid.place(Horizontal, first, number++, Vec(Math.floor((size-first.length)/2), Math.floor(size/2)))
+  grid.place(Horizontal, first, number++, Vec(Math.floor((size-first.length-2)/2), Math.floor(size/2)))
   
   var isVertical = true
   for(var word of tail){

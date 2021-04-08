@@ -84,9 +84,11 @@ export function App({
     var wordOptions = {
       swe: ordlista,
       eng: wordlist,
+      saol: 'saol'
     }
-
     var words = wordOptions[wordsSelect.value]
+    if (words == 'saol') words = await (await fetch('saol.json')).json()
+
     var grid = await optimize(() => {
       var wordlist = randomizeWords({ mandatory, fillers: words })
       return generateSparse(wordlist, new WordGrid({

@@ -1,56 +1,57 @@
-import { isClue, isStop } from './wordgrid.js'
+/* jshint -W014, -W083, undef: true */
+import { isBlock } from './wordgrid.js'
 
-export function print(grid) {
-  console.log(grid.grid.map(e => e.map(e => e?e:' ').join(' ')).join('\n'))
+export function ascii(grid) {
+  return grid.grid.map(e => e.map(e => e?e:' ').join(' ')).join('\n')
 }
 
 export function svg(wordgrid, scale = 20) {
-  var grid = wordgrid.grid
   var padding = scale/5
+  var z = scale
   
   function renderLetter(i, j, cell){
     return `
-      <rect x="${scale*i}" y="${scale*j}" width="${scale}" height="${scale}" />
-      <text x="${scale*i+scale/2}" y="${scale*j+scale-padding}">${cell.toString().toUpperCase()}</text>`
+      <rect x="${z*i}" y="${z*j}" width="${z}" height="${z}" />
+      <text x="${z*i+z/2}" y="${z*j+z-padding}">${cell.toString().toUpperCase()}</text>`
   }
   
-  function renderClue(i, j, cell){
-    var arrow = cell.direction === 'horizontal'
-      ? `<path transform="translate(${scale*(i+1)}, ${scale*(j+0.5)}), scale(${scale*0.05})" d="M0 0 L-4 2L-4 -2 Z" />`
-      : `<path transform="translate(${scale*(i+0.5)}, ${scale*(j+1)}), scale(${scale*0.05})" d="M0 0 L-2 -4L2 -4 Z" />`
+  function renderBlock(i, j, cell){
+    var pad = z/10
+    var clueh = cell.clues.horizontal
+      ? `<text x="${z*i+z-pad}" y="${z*j+z/2}" class="clue-h">${cell.clues.horizontal}</text>`
+      : ''
+    var cluev = cell.clues.vertical
+      ? `<text x="${z*i+pad}" y="${z*j+z-pad}" class="clue-v">${cell.clues.vertical}</text>`
+      : ''
     return `
-      <rect x="${scale*i}" y="${scale*j}" width="${scale}" height="${scale}" class="solid" />
-      ${arrow}
-      <text x="${scale*i+scale/2}" y="${scale*j+scale-padding*1.5}" class="clue">${cell.toString()}</text>`
-  }
-
-  function renderStop(i, j){
-    return `<rect x="${scale*i}" y="${scale*j}" width="${scale}" height="${scale}" class="solid"/>`
+      <rect x="${z*i}" y="${z*j}" width="${z}" height="${z}" class="solid" />
+      ${clueh}
+      ${cluev}`
   }
 
   function renderCell(cell, i, j) {
     if (!cell) return ''
-    if (isClue(cell)) return renderClue(i, j, cell)
-    if (isStop(cell)) return renderStop(i, j)
+    if (isBlock(cell)) return renderBlock(i, j, cell)
     return renderLetter(i, j, cell)
   }
 
-  function renderArea(area) {
-    var x = scale*area.x
-    var y = scale*area.y
-    return `<rect x="${x}" y="${y}" width="${area.width*scale}" height="${area.height*scale}" />`
+  function renderArea({ x, y, width, height }) {
+    return `<rect x="${z*x}" y="${z*y}" width="${width*z}" height="${height*z}" />`
   }
 
-  var elements = grid.flatMap((row, j) =>
-    row.map((cell, i) => renderCell(cell, i, j))
-  )
-  return `<svg viewBox="-1 -1 ${grid.length*scale+2} ${grid[0].length*scale+2}">
+  var elements = []
+  for (var i=0; i<wordgrid.size; i++)
+    for (var j=0; j<wordgrid.size; j++)
+      elements.push(renderCell(wordgrid.get({x:i,y:j}), i, j))
+
+  return `<svg viewBox="-1 -1 ${wordgrid.size*z+2} ${wordgrid.size*z+2}">
   <style>
     rect { fill:none; stroke:#000; stroke-width: 2px; }
     .solid { fill:#000 }
     path { fill:#fff }
-    text { text-anchor: middle; font-family: sans-serif; font-size: ${scale*0.8}px; font-weight: normal; }
-    text.clue { fill: #fff; font-size: ${scale*0.6}px }
+    text { text-anchor: middle; font-family: sans-serif; font-size: ${z*0.8}px; font-weight: normal; }
+    text.clue-h { text-anchor: end; fill: #fff; font-size: ${z*0.4}px }
+    text.clue-v { text-anchor: start; fill: #fff; font-size: ${z*0.4}px }
   </style>
   ${wordgrid.reserved.map(renderArea).join('')}
   ${elements.join('')}
