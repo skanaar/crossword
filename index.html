@@ -9,7 +9,9 @@
     html, body { margin: 0; background: #eee; }
     body { font-family: sans-serif; }
     crossword-settings, clues-panel {
-      display: inline-block;
+      display: inline-flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
       width: 200px;
       vertical-align: top;
       margin: 20px;
@@ -30,6 +32,8 @@
       background-position-x: 100%;
       background-position-y: 5px;
     }
+    select[short] { width: 40%; }
+    select[medium] { width: 55%; }
     .card {
       background: white;
       border-radius: 5px;
@@ -42,6 +46,7 @@
       box-sizing: border-box;
       border: none;
     }
+    button[primary] { border: 2px solid }
     .box {
       border-radius: 5px;
       font-family: "Geneva", "Calibri", sans-serif;
@@ -53,9 +58,16 @@
       border: 1px solid #ccc;
       padding: 5px 7px;
     }
-    select, button, output-console { width: 100%; margin: 10px 0; }
+    label {
+      font-family: "Geneva", "Calibri", sans-serif;
+      font-weight: normal;
+      font-size: 14px;
+      color: #666;
+      padding: 2px 7px;
+    }
+    select, button, textarea, output-console { width: 100%; margin: 0 0 20px 0; }
     button[disabled] { background: linear-gradient(45deg, #ccc 0 10%, #eee 10% 20%, #ccc 20% 30%, #eee 30% 40%, #ccc 40% 50%, #eee 50% 60%, #ccc 60% 70%, #eee 70% 80%, #ccc 80% 90%, #eee 90% 100%) }
-    textarea { height: 100px; width: 100%; margin-bottom: 10px; }
+    textarea { height: 100px; }
     #root { display: inline-block; margin: 20px; padding: 20px }
     #root svg { width: 100% }
     @media (min-width: 500px) {
@@ -64,26 +76,29 @@
   </style>
 </head>
 <body>
+
   <crossword-settings>
-    <textarea id=words class=card></textarea>
+    <select id=size-select short class=card>
+      <option value=7>7×7</option>
+      <option value=10 selected>10×10</option>
+      <option value=15>15×15</option>
+      <option value=20>20×20</option>
+      <option value=25>25×25</option>
+    </select>
+    <select id=inset-select medium class=card>
+      <option value=0x0 selected>no inset</option>
+      <option value=0.35x0.35>square inset</option>
+      <option value=0.5x0.35>wide inset</option>
+      <option value=0.35x0.5>tall inset</option>
+      <option value=0.5x0.5>large inset</option>
+    </select>
     <select id=words-select class=card>
       <option value=swe selected>Swedish word list</option>
       <option value=eng>English word list</option>
+      <option value=none>Only custom words</option>
     </select>
-    <select id=size-select class=card>
-      <option value=7>7×7 grid</option>
-      <option value=10 selected>10×10 grid</option>
-      <option value=15>15×15 grid</option>
-      <option value=25>25×25 grid</option>
-      <option value=50>50×50 grid</option>
-    </select>
-    <select id=inset-select class=card>
-      <option value=0x0 selected>no inset</option>
-      <option value=0.35x0.35>small square inset</option>
-      <option value=0.5x0.35>small wide inset</option>
-      <option value=0.35x0.5>small tall inset</option>
-      <option value=0.5x0.5>large square inset</option>
-    </select>
+    <label>Custom words</label>
+    <textarea id=words class=card></textarea>
     <select id=iterations-select class=card>
       <option value=0>Quick and dirty</option>
       <option value=0.2 selected>200 ms processing</option>
@@ -91,13 +106,15 @@
       <option value=2>2 s processing</option>
       <option value=5>5 s processing</option>
     </select>
-    <button id=generate-button class=card>Generate</button>
-    <button id=remove-button class=card>Remove last word</button>
-    <output-console id=console class=box></output-console>
+    <button primary id=generate-button class=card>Generate</button>
   </crossword-settings>
-	<div id=root class=card></div>
+  
+  <div id=root class=card></div>
+  
   <clues-panel>
     <textarea id=used-words class=card></textarea>
+    <output-console id=console class=box></output-console>
+    <button id=remove-button class=card>Remove last word</button>
   </clues-panel>
 	
   <script type="module">
@@ -107,13 +124,13 @@
       generateButton: document.querySelector('#generate-button'),
       removeLastWordButton: document.querySelector('#remove-button'),
       wordsSelect: document.querySelector('#words-select'),
-      customWords: document.querySelector('#words'),
+      wordsTextbox: document.querySelector('#words'),
       sizeSelect: document.querySelector('#size-select'),
       insetSelect: document.querySelector('#inset-select'),
       iterationsSelect: document.querySelector('#iterations-select'),
       consoleHost: document.querySelector('#console'),
       displayHost: document.querySelector('#root'),
-      usedWords: document.querySelector('#used-words'),
+      usedWordsTextbox: document.querySelector('#used-words'),
     })
   </script>
 

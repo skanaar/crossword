@@ -46,10 +46,10 @@ export function svg(wordgrid, scale = 20) {
 
   return `<svg viewBox="-1 -1 ${wordgrid.size*z+2} ${wordgrid.size*z+2}">
   <style>
-    rect { fill:none; stroke:#000; stroke-width: 2px; }
-    .solid { fill:#000 }
+    rect { fill:none; stroke:#444; stroke-width: 2px; }
+    .solid { fill:#444 }
     path { fill:#fff }
-    text { text-anchor: middle; font-family: sans-serif; font-size: ${z*0.8}px; font-weight: normal; }
+    text { fill: #444; text-anchor: middle; font-family: sans-serif; font-size: ${z*0.8}px; font-weight: normal; }
     text.clue-h { text-anchor: end; fill: #fff; font-size: ${z*0.4}px }
     text.clue-v { text-anchor: start; fill: #fff; font-size: ${z*0.4}px }
   </style>

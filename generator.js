@@ -1,4 +1,4 @@
-import { Vec, Vertical, Horizontal } from './wordgrid.js'
+import { Vec, Vertical, Horizontal, isBlock, isLetter} from './wordgrid.js'
 
 function shuffle(list) {
   var input = [...list]
@@ -25,19 +25,37 @@ export function generateSparse(words, grid) {
   var isVertical = true
   for(var word of tail){
     if (isVertical){
-      let p = grid.find_v(word, 2, 1)
+      let p = find_v(word, 2, 1)
       if (p) {
         grid.place(Vertical, word, number++, p)
         isVertical = !isVertical
       }
     } else {
-      let p = grid.find_h(word, 2, 1)
+      let p = find_h(word, 2, 1)
       if (p) {
         grid.place(Horizontal, word, number++, p)
         isVertical = !isVertical
       }
     }
   }
-  
+
+  function find_v(word, modulo = 1, offset = 0) {
+    for (var i=offset; i<size-1; i+=modulo)
+      for (var j=0; j<size-word.length; j++)
+        if ((isBlock(grid.get(Vec(i,j)))) || [].some.call(word, (_,l) => isLetter(grid.grid[j+l+1][i])))
+          if (grid.try(Vertical, word, Vec(i,j)))
+            return Vec(i,j)
+    return false
+  }
+
+  function find_h(word, modulo = 1, offset = 0) {
+    for (var i=0; i<size-word.length; i++)
+      for (var j=offset; j<size-1; j+=modulo)
+        if ((isBlock(grid.get(Vec(i,j)))) || [].some.call(word, (_,l) => isLetter(grid.grid[j][i+l+1])))
+          if (grid.try(Horizontal, word, Vec(i,j)))
+            return Vec(i,j)
+    return false
+  }
+
   return grid
 }

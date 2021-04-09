@@ -56,24 +56,6 @@ export class WordGrid {
   setIntersection(p, intersecting) {
     this.grid[p.y][p.x].intersection = intersecting
   }
-  
-  find_v(word, modulo = 1, offset = 0) {
-    for (var i=offset; i<this.size-1; i+=modulo)
-      for (var j=0; j<this.size-word.length; j++)
-        if ((isBlock(this.get(Vec(i,j)))) || [].some.call(word, (_,l) => isLetter(this.grid[j+l+1][i])))
-          if (this.try(Vertical, word, Vec(i,j)))
-            return Vec(i,j)
-    return false
-  }
-
-  find_h(word, modulo = 1, offset = 0) {
-    for (var i=0; i<this.size-word.length; i++)
-      for (var j=offset; j<this.size-1; j+=modulo)
-        if ((isBlock(this.get(Vec(i,j)))) || [].some.call(word, (_,l) => isLetter(this.grid[j][i+l+1])))
-          if (this.try(Horizontal, word, Vec(i,j)))
-            return Vec(i,j)
-    return false
-  }
 
   try(direction, word, p) {
     var start = this.get(p)

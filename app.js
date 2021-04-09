@@ -20,14 +20,37 @@ export function App({
   generateButton,
   removeLastWordButton,
   wordsSelect,
-  customWords,
+  wordsTextbox,
   sizeSelect,
   insetSelect,
   iterationsSelect,
   consoleHost,
   displayHost,
-  usedWords,
+  usedWordsTextbox,
 }) {
+  
+  function loadState() {
+    var json = localStorage.getItem('crossword_config') ?? '{}'; // jshint ignore:line
+    var state = JSON.parse(json)
+    if (state.wordlist) wordsSelect.value = state.wordlist
+    if (state.words) wordsTextbox.value = state.words
+    if (state.size) sizeSelect.value = state.size
+    if (state.inset) insetSelect.value = state.inset
+    if (state.iterations) iterationsSelect.value = state.iterations
+  }
+  
+  function storeState() {
+    var state = {
+      wordlist: wordsSelect.value,
+      words: wordsTextbox.value,
+      size: sizeSelect.value,
+      inset: insetSelect.value,
+      iterations: iterationsSelect.value,
+    }
+    localStorage.setItem('crossword_config', JSON.stringify(state))
+  }
+  
+  loadState()
   
   var blockableGenerate = blocking(generate, () => {
     generateButton.disabled = blockableGenerate.isBlocked
@@ -61,12 +84,13 @@ export function App({
   }
   
   function render(grid) {
+    storeState()
     var size = +sizeSelect.value
     var scale = 500/size
     console.log(grid)
     consoleHost.innerHTML = 'score: ' + grid.score()
     displayHost.innerHTML = svg(grid, scale)
-    usedWords.value = grid.words.map(e => e.word).join('\n')
+    usedWordsTextbox.value = grid.words.map(e => e.word).join('\n')
   }
 
   async function generate() {
@@ -80,10 +104,11 @@ export function App({
       }
     })
     
-    var mandatory = customWords.value.trim().split('\n').map(e => e.trim())
+    var mandatory = wordsTextbox.value.trim().split('\n').map(e => e.trim())
     var wordOptions = {
       swe: ordlista,
       eng: wordlist,
+      none: [],
       saol: 'saol'
     }
     var words = wordOptions[wordsSelect.value]
