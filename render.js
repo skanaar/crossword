@@ -36,7 +36,7 @@ export function svg(wordgrid, scale = 20) {
   }
 
   function renderArea({ x, y, width, height }) {
-    return `<rect x="${z*x}" y="${z*y}" width="${width*z}" height="${height*z}" />`
+    return `<rect class="reserved" x="${z*x}" y="${z*y}" width="${width*z}" height="${height*z}" fill="#fff" />`
   }
 
   var elements = []
@@ -47,13 +47,14 @@ export function svg(wordgrid, scale = 20) {
   return `<svg viewBox="-1 -1 ${wordgrid.size*z+2} ${wordgrid.size*z+2}">
   <style>
     rect { fill:none; stroke:#444; stroke-width: 2px; }
+    rect.reserved { fill:#fff; }
     .solid { fill:#444 }
     path { fill:#fff }
     text { fill: #444; text-anchor: middle; font-family: sans-serif; font-size: ${z*0.8}px; font-weight: normal; }
     text.clue-h { text-anchor: end; fill: #fff; font-size: ${z*0.4}px }
     text.clue-v { text-anchor: start; fill: #fff; font-size: ${z*0.4}px }
   </style>
-  ${wordgrid.reserved.map(renderArea).join('')}
   ${elements.join('')}
+  ${wordgrid.reserved.map(renderArea).join('')}
   </svg>`
 }

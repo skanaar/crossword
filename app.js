@@ -95,7 +95,7 @@ export function App({
 
   async function generate() {
     var size = +sizeSelect.value
-    var inset = insetSelect.value.split('x').map(e => +e)
+    var inset = insetSelect.value.split('x').map(e => Math.floor(size * +e))
   
     var optimize = Optimizer({
       seconds: +iterationsSelect.value,
@@ -116,15 +116,9 @@ export function App({
 
     var grid = await optimize(() => {
       var wordlist = randomizeWords({ mandatory, fillers: words })
-      return generateSparse(wordlist, new WordGrid({
-        size,
-        reserved: [{
-          x: 0,
-          y: 0,
-          width: Math.floor(size*inset[0]),
-          height: Math.floor(size*inset[1])
-        }]
-      }))
+      var grid = new WordGrid(size)
+      grid.reserve({ x: 0, y: 0, width: inset[0], height: inset[1] })
+      return generateSparse(wordlist, grid)
     })
     lastGrid = grid
     render(grid)

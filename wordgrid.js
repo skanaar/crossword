@@ -17,7 +17,6 @@ export function isLetter(c) { return c && ('string' == typeof c.letter) }
 export function isMatch(c, letter) { return c.letter === letter }
 
 export function Empty() { return null }
-export function Reserved() { return false }
 export function Block() {
   return {
     clues: { horizontal: null, vertical: null },
@@ -33,16 +32,22 @@ export function Letter(letter) {
 }
 
 export class WordGrid {
-  constructor({ size, reserved = [] }) {
+  constructor(size) {
     this.size = size
     this.grid = seq(size, () => seq(size, () => Empty()))
     this.words = []
-    this.reserved = reserved
-    for(var { x, y, width, height } of reserved) {
-      for (var i=x; i<x+width; i++)
-        for (var j=y; j<y+height; j++)
-          this.grid[j][i] = Reserved()
-    }
+    this.reserved = []
+  }
+  
+  reserve({ x, y, width, height }) {
+    this.reserved.push({ x, y, width, height })
+    this.fill({ x, y, width: width, height: height })
+  }
+  
+  fill({ x, y, width, height }) {
+    for (let i=x; i<x+width; i++)
+      for (let j=y; j<y+height; j++)
+        this.grid[j][i] = Block()
   }
 
   get(p) {
