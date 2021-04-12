@@ -35,8 +35,9 @@ export function svg(wordgrid, scale = 20) {
     return renderLetter(i, j, cell)
   }
 
-  function renderArea({ x, y, width, height }) {
-    return `<rect class="reserved" x="${z*x}" y="${z*y}" width="${width*z}" height="${height*z}" fill="#fff" />`
+  function renderArea({ x, y, width, height, image }) {
+    return (image ? `<image href="${image}" width="${width*z}" height="${height*z}"/>` : '') +
+      `<rect class="reserved ${image ? 'border' : ''}" x="${z*x}" y="${z*y}" width="${width*z}" height="${height*z}" fill="#fff" />`
   }
 
   var elements = []
@@ -48,6 +49,7 @@ export function svg(wordgrid, scale = 20) {
   <style>
     rect { fill:none; stroke:#444; stroke-width: 2px; }
     rect.reserved { fill:#fff; }
+    rect.reserved.border { fill:#0000; }
     .solid { fill:#444 }
     path { fill:#fff }
     text { fill: #444; text-anchor: middle; font-family: sans-serif; font-size: ${z*0.8}px; font-weight: normal; }

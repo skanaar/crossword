@@ -39,8 +39,8 @@ export class WordGrid {
     this.reserved = []
   }
   
-  reserve({ x, y, width, height }) {
-    this.reserved.push({ x, y, width, height })
+  reserve({ x, y, width, height, image }) {
+    this.reserved.push({ x, y, width, height, image })
     this.fill({ x, y, width: width, height: height })
   }
   

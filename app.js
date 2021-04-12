@@ -1,4 +1,6 @@
-import { generateSparse, randomizeWords } from './generator.js'
+import { generateSparse, randomizeWords } from './algo-sparse.js'
+import { imageFileToDataUrl } from './img-loader.js'
+import { grow, diagonally } from './algo-grow.js'
 import { svg } from './render.js'
 import { ordlista } from './svenska.js'
 import { wordlist } from './english.js'
@@ -23,12 +25,14 @@ export function App({
   wordsTextbox,
   sizeSelect,
   insetSelect,
+  insetFileInput,
   iterationsSelect,
+  algoSelect,
   consoleHost,
   displayHost,
   usedWordsTextbox,
 }) {
-  
+
   function loadState() {
     var json = localStorage.getItem('crossword_config') ?? '{}'; // jshint ignore:line
     var state = JSON.parse(json)
@@ -37,6 +41,7 @@ export function App({
     if (state.size) sizeSelect.value = state.size
     if (state.inset) insetSelect.value = state.inset
     if (state.iterations) iterationsSelect.value = state.iterations
+    if (state.algo) algoSelect.value = state.algo
   }
   
   function storeState() {
@@ -46,6 +51,7 @@ export function App({
       size: sizeSelect.value,
       inset: insetSelect.value,
       iterations: iterationsSelect.value,
+      algo: algoSelect.value,
     }
     localStorage.setItem('crossword_config', JSON.stringify(state))
   }
@@ -59,7 +65,9 @@ export function App({
   generateButton.addEventListener('click', blockableGenerate)
   removeLastWordButton.addEventListener('click', removeLastWord)
   
-  var lastGrid = null
+  var self = {
+    wordgrid: null
+  }
   
   function blocking(action, onChange = () => {}) {
     var blockable = async function () {
@@ -79,15 +87,12 @@ export function App({
   }
   
   function removeLastWord() {
-    lastGrid.removeLastWord()
-    render(lastGrid)
+    self.wordgrid.removeLastWord()
+    render(self.wordgrid)
   }
   
-  function render(grid) {
+  function render(grid, scale) {
     storeState()
-    var size = +sizeSelect.value
-    var scale = 500/size
-    console.log(grid)
     consoleHost.innerHTML = 'score: ' + grid.score()
     displayHost.innerHTML = svg(grid, scale)
     usedWordsTextbox.value = grid.words.map(e => e.word).join('\n')
@@ -95,6 +100,7 @@ export function App({
 
   async function generate() {
     var size = +sizeSelect.value
+    var scale = 500/size
     var inset = insetSelect.value.split('x').map(e => Math.floor(size * +e))
   
     var optimize = Optimizer({
@@ -113,14 +119,31 @@ export function App({
     }
     var words = wordOptions[wordsSelect.value]
     if (words == 'saol') words = await (await fetch('saol.json')).json()
+    
+    var algos = {
+      sparse: generateSparse,
+      grow
+    }
+
+    var algo = algos[algoSelect.value]
+    var insetSize = { width: inset[0], height: inset[1] }
+    var image = null
+    if (insetFileInput.files.length) {
+      image = await imageFileToDataUrl(insetFileInput.files[0], {
+        width: scale*insetSize.width,
+        height: scale*insetSize.height,
+      })
+    }
 
     var grid = await optimize(() => {
       var wordlist = randomizeWords({ mandatory, fillers: words })
       var grid = new WordGrid(size)
-      grid.reserve({ x: 0, y: 0, width: inset[0], height: inset[1] })
-      return generateSparse(wordlist, grid)
+      grid.reserve({ ...insetSize, x: 0, y: 0, image })
+      return algo(wordlist, grid)
     })
-    lastGrid = grid
-    render(grid)
+    self.wordgrid = grid
+    render(grid, scale)
   }
+  
+  return self
 }
