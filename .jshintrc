@@ -4,5 +4,6 @@
   "esversion": 9,
   "undef": true,
   "loopfunc": true,
+  "laxbreak": true,
   "asi": true
 }

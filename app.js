@@ -1,7 +1,7 @@
 import { generateSparse, randomizeWords } from './algo-sparse.js'
 import { imageFileToDataUrl } from './img-loader.js'
 import { generateGrown } from './algo-grow.js'
-import { svg } from './render.js'
+import { renderSvg } from './render.js'
 import { ordlista } from './svenska.js'
 import { wordlist } from './english.js'
 import { Optimizer, timeout } from './optimizer.js'
@@ -72,7 +72,7 @@ export function App({
     try {
       var size = +sizeSelect.value
       var scale = 500/size
-      var svgSource = svg(self.wordgrid, scale)
+      var svgSource = renderSvg(self.wordgrid, { scale, answer: false })
       const blob = new Blob([svgSource], {type : 'image/svg+xml'})
       const newHandle = await window.showSaveFilePicker()
       const writableStream = await newHandle.createWritable()
@@ -106,7 +106,7 @@ export function App({
   function render(grid, scale) {
     storeState()
     consoleHost.innerHTML = 'score: ' + grid.score()
-    displayHost.innerHTML = svg(grid, scale)
+    displayHost.innerHTML = renderSvg(grid, { scale, answer: true })
     usedWordsTextbox.value = grid.words.map(e => e.word).join('\n')
     resultElement.classList.remove('hidden')
   }
@@ -157,7 +157,7 @@ export function App({
       var result = null
       for(var step of algo(wordlist, grid)) {
         result = step
-        displayHost.innerHTML = svg(grid, scale)
+        displayHost.innerHTML = renderSvg(grid, { scale, answer: true })
         await timeout(100)
       }
       return result

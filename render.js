@@ -1,18 +1,19 @@
-/* jshint -W014 */
 import { isBlock } from './wordgrid.js'
 
 export function ascii(grid) {
   return grid.grid.map(e => e.map(e => e?e:' ').join(' ')).join('\n')
 }
 
-export function svg(wordgrid, scale = 20) {
+export function renderSvg(wordgrid, { scale = 20, answer = false }) {
   var padding = scale/5
   var z = scale
   
+  function renderBox(i, j){
+    return `<rect x="${z*i}" y="${z*j}" width="${z}" height="${z}" />`
+  }
+  
   function renderLetter(i, j, cell){
-    return `
-      <rect x="${z*i}" y="${z*j}" width="${z}" height="${z}" />
-      <text x="${z*i+z/2}" y="${z*j+z-padding}">${cell.toString().toUpperCase()}</text>`
+    return `<text x="${z*i+z/2}" y="${z*j+z-padding}">${cell.letter.toUpperCase()}</text>`
   }
   
   function renderBlock(i, j, cell){
@@ -32,7 +33,8 @@ export function svg(wordgrid, scale = 20) {
   function renderCell(cell, i, j) {
     if (!cell) return ''
     if (isBlock(cell)) return renderBlock(i, j, cell)
-    return renderLetter(i, j, cell)
+    if (answer) return renderBox(i, j) + renderLetter(i, j, cell)
+    return renderBox(i, j)
   }
 
   function renderArea({ x, y, width, height, image }) {

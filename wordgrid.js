@@ -8,6 +8,8 @@ export const Vertical = (p, offset) => Vec(p.x, p.y+offset)
 Vertical.id = 'vertical'
 export const Horizontal = (p, offset) => Vec(p.x+offset, p.y)
 Horizontal.id = 'horizontal'
+Vertical.perpendicular = Horizontal
+Horizontal.perpendicular = Vertical
 const offsets = { vertical: Vertical, horizontal: Horizontal }
 
 export function isEmpty(c) { return c === null }
@@ -25,8 +27,7 @@ export function Block() {
 export function Letter(letter) {
   return {
     letter,
-    intersection: false,
-    toString() { return this.letter }
+    intersection: false
   }
 }
 
@@ -45,8 +46,10 @@ export class WordGrid {
   
   fill({ x, y, width, height }) {
     for (let i=x; i<x+width; i++)
-      for (let j=y; j<y+height; j++)
+      for (let j=y; j<y+height; j++){
         this.grid[j][i] = Block()
+        this.grid[j][i].uses++
+      }
   }
 
   get(p) {
@@ -62,11 +65,13 @@ export class WordGrid {
   }
 
   try(direction, word, p) {
-    var start = this.get(p)
-    if (!(isEmpty(start) || isBlock(start))) return false
     var end = direction(p, word.length+1)
     if (end.y >= this.size) return false
     if (end.x >= this.size) return false
+    if (p.y < 0) return false
+    if (p.x < 0) return false
+    var start = this.get(p)
+    if (!(isEmpty(start) || isBlock(start))) return false
     var last = direction(p, word.length+1)
     if (isLetter(this.get(last))) return false
     for (var k=0; k<word.length; k++) {
@@ -103,6 +108,7 @@ export class WordGrid {
   }
 
   removeLastWord() {
+    if (this.words.length === 0) return
     var { word, direction, loc } = this.words.pop()
     var offset = offsets[direction]
 

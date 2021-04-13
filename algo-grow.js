@@ -1,27 +1,62 @@
-import { Vec, Vertical, Horizontal, isBlock, isLetter} from './wordgrid.js'
+import { Vec, Vertical, Horizontal, isEmpty, isBlock } from './wordgrid.js'
 
-export function grow(words, grid) {
+export function* generateGrown(words, grid) {
   var size = grid.size
-  var number = 1
-  var [first, ...tail] = words.filter(e => e.length + 2 <= size)
+  grid.fill({ x: 0, y: 0, width: 1, height: size })
+  grid.fill({ x: 0, y: 0, width: size, height: 1 })
+  for(var area of grid.reserved) {
+    grid.fill({ x: area.x, y: area.y, width: area.width+1, height: area.height+1 })
+  }
 
   for (var p of diagonally(size)) {
     if (isEmpty(grid.get(p))) {
-      var clue_h = findSeedPoint(Horizontal, p)
-      var clue_v = findSeedPoint(Horizontal, p)
-      if (clue_h) {
-        
+      findAndPlaceWord(words, grid, Horizontal, p)
+      findAndPlaceWord(words, grid, Vertical, p)
+    }
+  }
+
+  yield grid
+}
+
+function findAndPlaceWord(words, grid, direction, p) {
+  var loc = findSeedPoint(grid, direction, p)
+  if (loc) {
+    for (var word of findMatchingWords(words, grid, direction, loc)) {
+      if (!placeWordOnGrid(words, grid, direction, word, loc)) {
+        return false
       }
     }
   }
+  return true
+}
 
-  function findSeedPoint(direction, p){
-    for (var i=1; i<size; i++) {
-      direction(p, -i)
+function findSeedPoint(grid, direction, p) {
+  for (var i=1; i<grid.size; i++) {
+    var loc = direction(p, -i)
+    if (isBlock(grid.get(loc)))
+      return loc
+  }
+  return null
+}
+
+function* findMatchingWords(words, grid, direction, p) {
+  for (var word of words)
+    if (grid.words.every(e => e.word !== word))
+      if (grid.try(direction, word, p))
+        yield word
+}
+
+function placeWordOnGrid(words, grid, direction, word, p) {
+  grid.place(direction, word, grid.words.length+1, p)
+  for (var i=1; i<word.length+1; i++) {
+    var loc = direction(p, i)
+    if (grid.get(loc).intersection) continue
+    if (!findAndPlaceWord(words, grid, direction.perpendicular, loc)) {
+      grid.removeLastWord()
+      return false
     }
   }
-
-  return grid
+  return true
 }
 
 export function* diagonally(size) {
