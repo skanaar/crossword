@@ -1,0 +1,8 @@
+{
+  "browser": true,
+  "devel": true,
+  "esversion": 9,
+  "undef": true,
+  "loopfunc": true,
+  "asi": true
+}

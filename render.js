@@ -1,4 +1,4 @@
-/* jshint -W014, -W083, undef: true */
+/* jshint -W014 */
 import { isBlock } from './wordgrid.js'
 
 export function ascii(grid) {

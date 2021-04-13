@@ -1,4 +1,3 @@
-/* jshint -W083, undef: true */
 function seq(size, factory) {
   return Array(size).fill(0).map(factory)
 }
