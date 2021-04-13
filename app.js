@@ -31,6 +31,8 @@ export function App({
   consoleHost,
   displayHost,
   usedWordsTextbox,
+  saveSvgButton,
+  resultElement,
 }) {
 
   function loadState() {
@@ -64,9 +66,23 @@ export function App({
   
   generateButton.addEventListener('click', blockableGenerate)
   removeLastWordButton.addEventListener('click', removeLastWord)
+  saveSvgButton.addEventListener('click', saveSvg)
   
   var self = {
     wordgrid: null
+  }
+  
+  async function saveSvg() {
+    try {
+      var size = +sizeSelect.value
+      var scale = 500/size
+      var svgSource = svg(self.wordgrid, scale)
+      const blob = new Blob([svgSource], {type : 'image/svg+xml'})
+      const newHandle = await window.showSaveFilePicker()
+      const writableStream = await newHandle.createWritable()
+      await writableStream.write(blob)
+      await writableStream.close()
+    } catch (e) { console.log(e) }
   }
   
   function blocking(action, onChange = () => {}) {
@@ -96,6 +112,7 @@ export function App({
     consoleHost.innerHTML = 'score: ' + grid.score()
     displayHost.innerHTML = svg(grid, scale)
     usedWordsTextbox.value = grid.words.map(e => e.word).join('\n')
+    resultElement.classList.remove('hidden')
   }
 
   async function generate() {

@@ -45,7 +45,9 @@ export function svg(wordgrid, scale = 20) {
     for (var j=0; j<wordgrid.size; j++)
       elements.push(renderCell(wordgrid.get({x:i,y:j}), i, j))
 
-  return `<svg viewBox="-1 -1 ${wordgrid.size*z+2} ${wordgrid.size*z+2}">
+  var attrs = 'version="1.1" baseProfile="full" xmlns="http://www.w3.org/2000/svg"'
+      
+  return `<svg ${attrs} viewBox="-1 -1 ${wordgrid.size*z+2} ${wordgrid.size*z+2}">
   <style>
     rect { fill:none; stroke:#444; stroke-width: 2px; }
     rect.reserved { fill:#fff; }

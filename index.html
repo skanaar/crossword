@@ -18,7 +18,7 @@
       user-select: none;
     }
     clues-panel textarea {
-      height: 400px;
+      height: 200px;
     }
     select, button, textarea, output-console {
       display: inline-block;
@@ -78,6 +78,7 @@
     @media (min-width: 500px) {
       #root svg { width: 500px }
     }
+    .hidden { display: none }
   </style>
 </head>
 <body>
@@ -122,10 +123,11 @@
   
   <div id=root class=card></div>
   
-  <clues-panel>
+  <clues-panel class=hidden>
     <textarea id=used-words class=card></textarea>
     <output-console id=console class=box></output-console>
     <button id=remove-button class=card>Remove last word</button>
+    <button id=save-svg-button class=card>Save SVG...</button>
   </clues-panel>
 
   <script type="module">
@@ -144,6 +146,8 @@
       consoleHost: document.querySelector('#console'),
       displayHost: document.querySelector('#root'),
       usedWordsTextbox: document.querySelector('#used-words'),
+      saveSvgButton: document.querySelector('#save-svg-button'),
+      resultElement: document.querySelector('clues-panel'),
     })
   </script>
 
