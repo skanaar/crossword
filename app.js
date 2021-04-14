@@ -1,31 +1,22 @@
 import { generateSparse, randomizeWords } from './algo-sparse.js'
 import { imageFileToDataUrl } from './img-loader.js'
-import { grow, diagonally } from './algo-grow.js'
+import { generateGrown } from './algo-grow.js'
 import { svg } from './render.js'
 import { ordlista } from './svenska.js'
 import { wordlist } from './english.js'
-import { Optimizer } from './optimizer.js'
+import { Optimizer, timeout } from './optimizer.js'
 import { WordGrid } from './wordgrid.js'
-
-function progressSvg(size, amount) {
-  return `<svg width="${size}" height="${size}">
-  <style>
-    rect.border { fill:none; stroke:#000; stroke-width: 5px; }
-    rect.bar { fill:#333; stroke:none; }
-  </style>
-  <rect class="bar" x="${size*0.2}" y="${size*0.45}" width="${size*0.6*amount}" height="${size*0.1}" />
-  <rect class="border" x="${size*0.2}" y="${size*0.45}" width="${size*0.6}" height="${size*0.1}" />
-  </svg>`
-}
 
 export function App({
   generateButton,
+  progressElement,
   removeLastWordButton,
   wordsSelect,
   wordsTextbox,
   sizeSelect,
   insetSelect,
   insetFileInput,
+  insetFileLabel,
   iterationsSelect,
   algoSelect,
   consoleHost,
@@ -67,6 +58,11 @@ export function App({
   generateButton.addEventListener('click', blockableGenerate)
   removeLastWordButton.addEventListener('click', removeLastWord)
   saveSvgButton.addEventListener('click', saveSvg)
+  insetFileInput.addEventListener('change', () => {
+    var file = insetFileInput.files[0]
+    if (file)
+      insetFileLabel.innerHTML = file.name
+  })
   
   var self = {
     wordgrid: null
@@ -116,6 +112,8 @@ export function App({
   }
 
   async function generate() {
+    resultElement.classList.add('hidden')
+
     var size = +sizeSelect.value
     var scale = 500/size
     var inset = insetSelect.value.split('x').map(e => Math.floor(size * +e))
@@ -123,7 +121,7 @@ export function App({
     var optimize = Optimizer({
       seconds: +iterationsSelect.value,
       onProgress(progress) {
-        displayHost.innerHTML = progressSvg(500, progress)
+        progressElement.style.setProperty('width', `${progress * 100}%`)
       }
     })
     
@@ -139,7 +137,7 @@ export function App({
     
     var algos = {
       sparse: generateSparse,
-      grow
+      grow: generateGrown,
     }
 
     var algo = algos[algoSelect.value]
@@ -152,11 +150,17 @@ export function App({
       })
     }
 
-    var grid = await optimize(() => {
+    var grid = await optimize(async function () {
       var wordlist = randomizeWords({ mandatory, fillers: words })
       var grid = new WordGrid(size)
       grid.reserve({ ...insetSize, x: 0, y: 0, image })
-      return algo(wordlist, grid)
+      var result = null
+      for(var step of algo(wordlist, grid)) {
+        result = step
+        displayHost.innerHTML = svg(grid, scale)
+        await timeout(100)
+      }
+      return result
     })
     self.wordgrid = grid
     render(grid, scale)

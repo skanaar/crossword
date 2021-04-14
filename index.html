@@ -46,6 +46,13 @@
       box-sizing: border-box;
       border: none;
     }
+    progress-bar.card { padding: 0; overflow: hidden; }
+    progress-bar progress-indicator {
+      display: block;
+      background: #888;
+      height: 10px;
+      transition: width 0.2s
+    }
     input[type="file"] { display: none }
     button[primary] { border: 2px solid }
     .box {
@@ -64,7 +71,7 @@
       color: #666;
       padding: 2px 7px;
     }
-    select, button, textarea, output-console, label.card {
+    select, button, textarea, output-console, label.card, progress-bar {
       width: 100%;
       margin: 0 0 20px 0;
     }
@@ -117,6 +124,9 @@
       <option value=5>5 s processing</option>
     </select>
     <button primary id=generate-button class=card>Generate</button>
+    <progress-bar class=card>
+      <progress-indicator></progess-indicator>
+    </progress-bar>
     <div class=box>by Daniel Kallin</div>
   </crossword-settings>
   
@@ -134,12 +144,14 @@
     
     window.app = App({
       generateButton: document.querySelector('#generate-button'),
+      progressElement: document.querySelector('progress-indicator'),
       removeLastWordButton: document.querySelector('#remove-button'),
       wordsSelect: document.querySelector('#words-select'),
       wordsTextbox: document.querySelector('#words'),
       sizeSelect: document.querySelector('#size-select'),
       insetSelect: document.querySelector('#inset-select'),
       insetFileInput: document.querySelector('#inset-file'),
+      insetFileLabel: document.querySelector('label[for="inset-file"]'),
       iterationsSelect: document.querySelector('#iterations-select'),
       algoSelect: document.querySelector('#algo-select'),
       consoleHost: document.querySelector('#console'),

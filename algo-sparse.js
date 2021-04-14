@@ -15,7 +15,7 @@ export function randomizeWords({ mandatory, fillers }) {
   return [...mandatory.filter(e => e && e.length), ...shuffle(fillers).sort((a,b) => a.length < b.length)]
 }
 
-export function generateSparse(words, grid) {
+export function* generateSparse(words, grid) {
   var size = grid.size
   var number = 1
   var [first, ...tail] = words.filter(e => e.length + 2 <= size)
@@ -28,12 +28,14 @@ export function generateSparse(words, grid) {
       let p = find_v(word, 2, 1)
       if (p) {
         grid.place(Vertical, word, number++, p)
+        yield grid
         isVertical = !isVertical
       }
     } else {
       let p = find_h(word, 2, 1)
       if (p) {
         grid.place(Horizontal, word, number++, p)
+        yield grid
         isVertical = !isVertical
       }
     }
@@ -56,6 +58,4 @@ export function generateSparse(words, grid) {
             return Vec(i,j)
     return false
   }
-
-  return grid
 }
